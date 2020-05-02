@@ -1,7 +1,8 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
-using System.Text;
+using System.IO;
+using System.Runtime.Serialization.Json;
 
 namespace MainServer
 {
@@ -9,7 +10,6 @@ namespace MainServer
     {
         public static void Main(string[] args)
         {
-            //var factory = new ConnectionFactory() { HostName = "localhost" };
             ConnectionFactory factory = new ConnectionFactory
             {
                 UserName = "guest",
@@ -21,8 +21,8 @@ namespace MainServer
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare(queue: "hello",
-                                     durable: false,
+                channel.QueueDeclare(queue: "document_exchange_queue",
+                                     durable: true,
                                      exclusive: false,
                                      autoDelete: false,
                                      arguments: null);
@@ -31,14 +31,22 @@ namespace MainServer
                 consumer.Received += (model, ea) =>
                 {
                     var body = ea.Body;
-                    var message = Encoding.UTF8.GetString(body.ToArray());
-                    Console.WriteLine(" [x] Received {0}", message);
+
+                    var stream = new MemoryStream(body.ToArray());
+                    var jsonFormatter = new DataContractJsonSerializer(typeof(Message));
+                    var message = (Message) jsonFormatter.ReadObject(stream);
+
+                    // TODO: check for filename
+                    var path = Path.Combine(@"C:\Users\InsYst3m~\Source\Repos\MessageQueues\ReceivedDocuments", message.FileName);
+                    File.WriteAllBytes(path, message.Content);
+
+                    Console.WriteLine($"File: '{message.FileName}' with Length: '{message.Content.Length}' was successfully received.");
                 };
-                channel.BasicConsume(queue: "hello",
+                channel.BasicConsume(queue: "document_exchange_queue",
                                      autoAck: true,
                                      consumer: consumer);
 
-                Console.WriteLine(" Press [enter] to exit.");
+                Console.WriteLine("Press [enter] to exit.");
                 Console.ReadLine();
             }
         }
