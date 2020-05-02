@@ -1,4 +1,5 @@
-﻿using CaptureServer.RabbitMQ;
+﻿using CaptureServer.MessageExchanger;
+using CaptureServer.RabbitMQ;
 using System;
 using System.IO;
 
@@ -6,6 +7,13 @@ namespace CaptureServer
 {
     public class FileProcessor
     {
+        private readonly MessageExchangeService _messageExchangeService;
+
+        public FileProcessor()
+        {
+            _messageExchangeService = new MessageExchangeService();
+        }
+
         public void Process(string[] files)
         {
             // прокинуть в message queue
@@ -19,7 +27,7 @@ namespace CaptureServer
                 var file = files[i];
                 var fileContent = File.ReadAllBytes(file);
 
-                SendFileToMessageQueue(new Message
+                _messageExchangeService.SendMessage(new Message
                 {
                     FileName = Path.GetFileName(file),
                     Content = fileContent
@@ -29,11 +37,6 @@ namespace CaptureServer
         }
 
         #region Private methods
-
-        private void SendFileToMessageQueue(Message message)
-        {
-
-        }
 
         private bool CheckFileSize()
         {
