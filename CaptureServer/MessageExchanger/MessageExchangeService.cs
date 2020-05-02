@@ -24,7 +24,7 @@ namespace CaptureServer.MessageExchanger
                                          autoDelete: false,
                                          arguments: null);
 
-                    string testMessage = "Hello world";
+                    string testMessage = "Hello World!";
                     var body = Encoding.UTF8.GetBytes(testMessage);
 
                     channel.BasicPublish(exchange: "", 
@@ -33,7 +33,7 @@ namespace CaptureServer.MessageExchanger
                                          basicProperties: null, 
                                          body: body);
 
-                    System.Console.WriteLine($"Message {testMessage} was successfully sent.");
+                    System.Console.WriteLine($"Message '{testMessage}' was successfully sent.");
                 }
             }
         }
