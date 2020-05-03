@@ -8,6 +8,8 @@ namespace MainServer
 {
     public class Program
     {
+        private const string ReceivedFilesFolder = @"C:\Users\InsYst3m~\Source\Repos\MessageQueues\ReceivedDocuments";
+
         public static void Main(string[] args)
         {
             ConnectionFactory factory = new ConnectionFactory
@@ -36,8 +38,7 @@ namespace MainServer
                     var jsonFormatter = new DataContractJsonSerializer(typeof(Message));
                     var message = (Message) jsonFormatter.ReadObject(stream);
 
-                    // TODO: check for filename
-                    var path = Path.Combine(@"C:\Users\InsYst3m~\Source\Repos\MessageQueues\ReceivedDocuments", message.FileName);
+                    var path = GenerateNewFileNameIfExists(message.FileName);
                     File.WriteAllBytes(path, message.Content);
 
                     Console.WriteLine($"File: '{message.FileName}' with Length: '{message.Content.Length}' was successfully received.");
@@ -49,6 +50,22 @@ namespace MainServer
                 Console.WriteLine("Press [enter] to exit.");
                 Console.ReadLine();
             }
+        }
+
+        private static string GenerateNewFileNameIfExists(string fileName)
+        {
+            var path = Path.Combine(ReceivedFilesFolder, fileName);
+            if (File.Exists(path))
+            {
+                var directory = Path.GetDirectoryName(path);
+                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
+                var fileExtension = Path.GetExtension(path);
+                var newFileName = $"{fileNameWithoutExtension}_{Guid.NewGuid()}{fileExtension}";
+
+                return Path.Combine(directory, newFileName);
+            }
+
+            return path;
         }
     }
 }

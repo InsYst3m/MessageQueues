@@ -16,10 +16,6 @@ namespace CaptureServer
 
         public void Process(string[] files)
         {
-            // прокинуть в message queue
-            // если по размеру не влазит, 
-            // разбить на неск массивов байтов с номером и прокинуть это все в очередь
-
             Console.WriteLine("File processor started working...");
 
             for (int i = 0; i < files.Length; i++)
