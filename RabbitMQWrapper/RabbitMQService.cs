@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Configuration;
+using RabbitMQ.Client;
 using System;
 using System.IO;
 using System.Runtime.Serialization.Json;
@@ -7,13 +8,21 @@ namespace RabbitMQWrapper
 {
     public class RabbitMQService : IDisposable
     {
+        private readonly Settings _settings;
         private readonly IConnection _rabbitMqConnection;
         private readonly IModel _channel;
 
         public RabbitMQService()
         {
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("settings.json")
+                .Build();
+
+            _settings = new Settings();
+            configuration.GetSection("RabbitMQSettings").Bind(_settings);
+
             _rabbitMqConnection = GetRabbitConnection();
-            _channel = _rabbitMqConnection.CreateModel();
+            _channel = _rabbitMqConnection.CreateModel(); 
         }
 
         // TODO: configuration json file for rabbitMQ settings (UserName + Password; host)
@@ -21,10 +30,10 @@ namespace RabbitMQWrapper
         {
             ConnectionFactory factory = new ConnectionFactory
             {
-                UserName = "guest",
-                Password = "guest",
-                VirtualHost = "/",
-                HostName = "localhost"
+                UserName = _settings.UserName,
+                Password = _settings.Password,
+                VirtualHost = _settings.VirtualHost,
+                HostName = _settings.HostName
             };
 
             IConnection connection = factory.CreateConnection();

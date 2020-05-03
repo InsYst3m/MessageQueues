@@ -7,10 +7,12 @@ namespace CaptureServer
 {
     public class FileProcessor : IDisposable
     {
+        private readonly AppSettings _settings;
         private readonly MessageExchangeService _messageExchangeService;
 
-        public FileProcessor()
+        public FileProcessor(AppSettings settings)
         {
+            _settings = settings;
             _messageExchangeService = new MessageExchangeService();
         }
 
@@ -39,14 +41,13 @@ namespace CaptureServer
         private void MoveDocumentToCompleted(string path)
         {
             var fileName = Path.GetFileName(path);
-            var completedFolder = @"C:\Users\InsYst3m~\Source\Repos\MessageQueuesFilesFolder\Completed";
 
-            var newPath = Path.Combine(completedFolder, fileName);
+            var newPath = Path.Combine(_settings.CompletedFolder, fileName);
 
             if (File.Exists(newPath))
             {
                 fileName = $"test_{Guid.NewGuid()}.pdf";
-                newPath = Path.Combine(completedFolder, fileName);
+                newPath = Path.Combine(_settings.CompletedFolder, fileName);
             }
 
             File.Move(path, newPath);

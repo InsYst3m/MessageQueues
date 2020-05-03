@@ -1,0 +1,8 @@
+{
+  "RabbitMQSettings": {
+    "UserName": "guest",
+    "Password": "guest",
+    "VirtualHost": "/",
+    "HostName": "localhost"
+  }
+}

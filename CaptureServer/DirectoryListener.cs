@@ -1,47 +1,70 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CaptureServer
 {
     public class DirectoryListener
     {
-        private readonly Settings _settings;
+        private readonly AppSettings _settings;
         private readonly FileProcessor _fileProcessor;
 
-        public DirectoryListener(Settings settings)
+        public DirectoryListener()
         {
-            if (!Directory.Exists(settings.FolderPath))
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appSettings.json")
+                .Build();
+
+            _settings = new AppSettings();
+            configuration.GetSection("DirectoryListenerSettings").Bind(_settings);
+
+            if (!Directory.Exists(_settings.SendFolder))
             {
-                Console.WriteLine($"Folder '{settings.FolderPath}' not found. Bye!");
+                Console.WriteLine($"Folder '{_settings.SendFolder}' not found. Bye!");
                 Console.WriteLine("Application shutdown.");
+                Console.ReadLine();
                 Environment.Exit(0);
             }
 
-            _settings = settings;
-            _fileProcessor = new FileProcessor();
+            _fileProcessor = new FileProcessor(_settings);
         }
 
-        public void Listen()
+        public void Listen(CancellationToken cancellationToken)
+        {
+            Console.WriteLine($"Server starts listening of '{_settings.SendFolder}' for files with '{_settings.FileFormat}' format...");
+            Task.Run(() => ListenDirectory(cancellationToken), cancellationToken);
+        }
+
+        private void ListenDirectory(CancellationToken cancellationToken)
         {
             while (true)
             {
                 Console.WriteLine("Listening started...");
 
-                var files = Directory.GetFiles(_settings.FolderPath, _settings.FileFormat);
+                var files = Directory.GetFiles(_settings.SendFolder, _settings.FileFormat);
                 if (files.Length > 0)
                 {
                     Console.WriteLine($"Found {files.Length} files to process...");
                     // main logic
                     _fileProcessor.Process(files);
                 }
+                else
+                {
+                    Console.WriteLine("Files not found.");
+                }
 
                 Console.WriteLine("Listening ended...");
 
-                Thread.Sleep(10000);
-            }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    _fileProcessor.Dispose();
+                    return;
+                }
 
-            _fileProcessor.Dispose();
+                Thread.Sleep(6000);
+            }
         }
     }
 }
