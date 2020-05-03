@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CaptureServer.RabbitMQ
+namespace RabbitMQWrapper
 {
     [Serializable]
     public class Message

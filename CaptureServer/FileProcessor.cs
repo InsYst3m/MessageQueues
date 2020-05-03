@@ -1,5 +1,5 @@
 ﻿using CaptureServer.MessageExchanger;
-using CaptureServer.RabbitMQ;
+using RabbitMQWrapper;
 using System;
 using System.IO;
 

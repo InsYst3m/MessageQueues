@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CaptureServer", "CaptureServer\CaptureServer.csproj", "{29D849C9-2B1B-4236-9A10-A806516EF3B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MainServer", "MainServer\MainServer.csproj", "{ECA801F4-DAD7-4ED0-BC07-4B687500F231}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MainServer", "MainServer\MainServer.csproj", "{ECA801F4-DAD7-4ED0-BC07-4B687500F231}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQWrapper", "RabbitMQWrapper\RabbitMQWrapper.csproj", "{1D1817D5-9480-4695-82E2-CC1B37130C9D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{ECA801F4-DAD7-4ED0-BC07-4B687500F231}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECA801F4-DAD7-4ED0-BC07-4B687500F231}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECA801F4-DAD7-4ED0-BC07-4B687500F231}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D1817D5-9480-4695-82E2-CC1B37130C9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D1817D5-9480-4695-82E2-CC1B37130C9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D1817D5-9480-4695-82E2-CC1B37130C9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D1817D5-9480-4695-82E2-CC1B37130C9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

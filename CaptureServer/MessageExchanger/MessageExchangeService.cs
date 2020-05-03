@@ -1,19 +1,19 @@
-﻿using CaptureServer.RabbitMQ;
+﻿using RabbitMQWrapper;
 
 namespace CaptureServer.MessageExchanger
 {
     public class MessageExchangeService
     {
-        private readonly RabbitMqService _rabbitConnection;
+        private readonly RabbitMQService _rabbitConnection;
 
         public MessageExchangeService()
         {
-            _rabbitConnection = new RabbitMqService();
+            _rabbitConnection = new RabbitMQService();
         }
 
         public void SendMessage(Message message)
         {
-            _rabbitConnection.SendMessage(message);
+            _rabbitConnection.SendMessageToQueue(message);
         }
     }
 }
