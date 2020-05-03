@@ -25,11 +25,62 @@ namespace CaptureServer
                 var file = files[i];
                 var fileContent = File.ReadAllBytes(file);
 
-                _messageExchangeService.SendMessage(new Message
+                if (_settings.IsSplitMessagesEnabled)
                 {
-                    FileName = Path.GetFileName(file),
-                    Content = fileContent
-                });
+                    var messageSize = 1024;
+                    var fileContentSize = fileContent.Length * sizeof(byte);
+
+                    if (fileContentSize > messageSize)
+                    {
+                        int messageParts = fileContentSize % messageSize != 0 
+                            ? (fileContentSize / messageSize) + 1 
+                            : fileContentSize / messageSize;
+
+                        var messageGuid = Guid.NewGuid();
+
+                        for (int j = 0; j < messageParts; j++)
+                        {
+                            var startIndex = j * messageSize;
+                            var lastIndex = (j + 1) * messageSize;
+                            if (j == messageParts - 1)
+                            {
+                                messageSize = fileContentSize - j * messageSize;
+                                lastIndex = fileContentSize;
+                            }
+
+                            var message = new Message
+                            {
+                                Guid = messageGuid,
+                                FileName = Path.GetFileName(file),
+                                MessageNumber = j,
+                                MessageParts = messageParts,
+                                Content = GetSplittedArray(fileContent, startIndex, lastIndex, messageSize)
+                            };
+
+                            _messageExchangeService.SendMessage(message);
+                        }
+                    } 
+                    else
+                    {
+                        _messageExchangeService.SendMessage(new Message
+                        {
+                            FileName = Path.GetFileName(file),
+                            Content = fileContent,
+                            MessageNumber = 0,
+                            MessageParts = 0
+                        });
+                    }
+                } 
+                else
+                {
+                    _messageExchangeService.SendMessage(new Message
+                    {
+                        FileName = Path.GetFileName(file),
+                        Content = fileContent,
+                        MessageNumber = 0,
+                        MessageParts = 0
+                    });
+                }   
 
                 MoveDocumentToCompleted(file);
             }
@@ -51,6 +102,23 @@ namespace CaptureServer
             }
 
             File.Move(path, newPath);
+        }
+
+        private byte[] GetSplittedArray(byte[] sourceArray, int startIndex, int lastIndex, int arrayLength)
+        {
+            var result = new byte[arrayLength];
+
+            for (int i = 0; i < arrayLength; i++)
+            {
+                if (startIndex + i == lastIndex)
+                {
+                    break;
+                }
+
+                result[i] = sourceArray[startIndex + i];
+            }
+
+            return result;
         }
 
         #endregion
