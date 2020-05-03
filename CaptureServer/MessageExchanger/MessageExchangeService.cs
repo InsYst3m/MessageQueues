@@ -1,19 +1,51 @@
 ﻿using RabbitMQWrapper;
+using System;
 
 namespace CaptureServer.MessageExchanger
 {
-    public class MessageExchangeService
+    public class MessageExchangeService : IDisposable
     {
-        private readonly RabbitMQService _rabbitConnection;
+        private readonly RabbitMQService _rabbitMqService;
 
         public MessageExchangeService()
         {
-            _rabbitConnection = new RabbitMQService();
+            _rabbitMqService = new RabbitMQService();
         }
 
         public void SendMessage(Message message)
         {
-            _rabbitConnection.SendMessageToQueue(message);
+            _rabbitMqService.SendMessageToQueue(message);
         }
+
+        #region IDisposable Support
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    _rabbitMqService.Dispose();
+                }
+
+                disposed = true;
+            }
+        }
+
+        ~MessageExchangeService()
+        {
+            Dispose(false);
+        }
+
+        #endregion
     }
 }

@@ -40,6 +40,8 @@ namespace CaptureServer
 
                 Thread.Sleep(10000);
             }
+
+            _fileProcessor.Dispose();
         }
     }
 }

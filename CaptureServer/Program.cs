@@ -2,11 +2,8 @@
 
 namespace CaptureServer
 {
-    // TODO: 1) вынести RabbitMQ в отдельную dll
-    
-    // TODO: 3) CaptureServer - перенести обработанный файл в другую папку
     // TODO: 4) добавить json config file
-    // TODO: 5) разбить сообщение на несколько мелких (как их связать друг с другом)
+    // TODO: 5) refactoring
 
     public class Program
     {

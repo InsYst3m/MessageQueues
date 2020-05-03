@@ -9,7 +9,7 @@
         {
             if (args.Length == 0)
             {
-                FolderPath = @"C:\Users\InsYst3m~\Source\Repos\MessageQueues\Documents";
+                FolderPath = @"C:\Users\InsYst3m~\Source\Repos\MessageQueuesFilesFolder\ToSend";
                 FileFormat = "*.pdf";
             }
             else

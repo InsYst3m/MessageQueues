@@ -1,12 +1,21 @@
 ﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
+using System;
 using System.IO;
 using System.Runtime.Serialization.Json;
 
 namespace RabbitMQWrapper
 {
-    public class RabbitMQService
+    public class RabbitMQService : IDisposable
     {
+        private readonly IConnection _rabbitMqConnection;
+        private readonly IModel _channel;
+
+        public RabbitMQService()
+        {
+            _rabbitMqConnection = GetRabbitConnection();
+            _channel = _rabbitMqConnection.CreateModel();
+        }
+
         // TODO: configuration json file for rabbitMQ settings (UserName + Password; host)
         private IConnection GetRabbitConnection()
         {
@@ -29,45 +38,59 @@ namespace RabbitMQWrapper
             var jsonFormatter = new DataContractJsonSerializer(typeof(Message));
             jsonFormatter.WriteObject(stream, message);
 
-            using (var connection = GetRabbitConnection())
-            using (var channel = connection.CreateModel())
-            {
-                channel.QueueDeclare(queue: "document_exchange_queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
+            _channel.QueueDeclare(queue: "document_exchange_queue", durable: true, exclusive: false, autoDelete: false, arguments: null);
 
-                var body = stream.ToArray();
+            var body = stream.ToArray();
 
-                channel.BasicPublish(exchange: "", routingKey: "document_exchange_queue", mandatory: false, basicProperties: null, body: body);
-            }
+            _channel.BasicPublish(exchange: "", routingKey: "document_exchange_queue", mandatory: false, basicProperties: null, body: body);
         }
 
-        public void ReceiveMessagesFromQueue(string folderToSaveDocument)
+        public void ListenForMessagesFromQueue(Action<ReadOnlyMemory<byte>> callback)
         {
-            using (var connection = GetRabbitConnection())
-            using (var channel = connection.CreateModel())
+            _channel.QueueDeclare(queue: "document_exchange_queue",
+                                 durable: true,
+                                 exclusive: false,
+                                 autoDelete: false,
+                                 arguments: null);
+
+            MessageReceiver messageReceiver = new MessageReceiver(_channel, callback);
+
+            _channel.BasicConsume(queue: "document_exchange_queue",
+                                 autoAck: false,
+                                 consumer: messageReceiver);
+
+        }
+
+        #region IDisposable Support
+
+        private bool disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed)
             {
-                channel.QueueDeclare(queue: "document_exchange_queue",
-                                     durable: true,
-                                     exclusive: false,
-                                     autoDelete: false,
-                                     arguments: null);
-
-                var consumer = new EventingBasicConsumer(channel);
-                consumer.Received += (model, ea) =>
+                if (disposing)
                 {
-                    var body = ea.Body;
+                    _rabbitMqConnection.Dispose();
+                    _channel.Dispose();
+                }
 
-                    var stream = new MemoryStream(body.ToArray());
-                    var jsonFormatter = new DataContractJsonSerializer(typeof(Message));
-                    var message = (Message)jsonFormatter.ReadObject(stream);
-
-                    // TODO: save file to folder
-                    //var path = GenerateNewFileNameIfExists(message.FileName);
-                    //File.WriteAllBytes(path, message.Content);
-                };
-                channel.BasicConsume(queue: "document_exchange_queue",
-                                     autoAck: true,
-                                     consumer: consumer);
+                disposed = true;
             }
         }
+
+        ~RabbitMQService()
+        {
+            Dispose(false);
+        }
+
+        #endregion
     }
 }
