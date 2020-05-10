@@ -6,6 +6,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="PostSharp" Version="6.6.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AOP.CodeRefactoring\AOP.CodeRewriting.csproj" />
     <ProjectReference Include="..\RabbitMQWrapper\RabbitMQWrapper.csproj" />
   </ItemGroup>
 

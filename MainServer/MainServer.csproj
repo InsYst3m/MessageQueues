@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Autofac.Extras.DynamicProxy" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AOP.DynamicProxy\AOP.DynamicProxy.csproj" />
     <ProjectReference Include="..\RabbitMQWrapper\RabbitMQWrapper.csproj" />
   </ItemGroup>
 

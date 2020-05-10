@@ -3,7 +3,7 @@ using RabbitMQWrapper;
 
 namespace MainServer
 {
-    public class MessageQueueListener
+    public class MessageQueueListener : IMessageQueueListener
     {
         private readonly AppSettings _settings;
         private readonly RabbitMQService _rabbitMqService;
@@ -30,6 +30,11 @@ namespace MainServer
         public void Dispose()
         {
             _rabbitMqService.Dispose();
+        }
+
+        public void TestMethodWithArgs(string arg1, int arg2)
+        {
+            System.Console.WriteLine("TestMethodWithArgs call.");
         }
     }
 }

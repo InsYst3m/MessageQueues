@@ -27,6 +27,8 @@ namespace CaptureServer
                     }
                 }
             }
+
+            Console.ReadLine();
         }
     }
 }

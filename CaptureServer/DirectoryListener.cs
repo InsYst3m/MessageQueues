@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using AOP.CodeRewriting;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CaptureServer
 {
-    public class DirectoryListener
+    public class DirectoryListener : IDirectoryListener
     {
         private readonly AppSettings _settings;
         private readonly FileProcessor _fileProcessor;
@@ -37,6 +38,7 @@ namespace CaptureServer
             Task.Run(() => ListenDirectory(cancellationToken), cancellationToken);
         }
 
+        [LoggerAspect]
         private void ListenDirectory(CancellationToken cancellationToken)
         {
             while (true)

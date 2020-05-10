@@ -9,8 +9,7 @@ namespace MainServer
 {
     public class FileProcessor
     {
-        public readonly string _receivedFilesFolder;
-        
+        private readonly string _receivedFilesFolder;
         private List<Message> uncompletedMessages;
 
         public FileProcessor(string receivedFilesFolder)
